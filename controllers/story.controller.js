@@ -41,7 +41,10 @@ exports.createStory = async (req, res) => {
       });
     }
 
-    const { type, textContent, caption, backgroundColor, duration, visibility } = req.body;
+    const { type, textContent, caption, backgroundColor, visibility } = req.body;
+// Defensive: always ensure duration exists and is a number!
+let storyDuration = Number(req.body.duration);
+if (!storyDuration || isNaN(storyDuration)) storyDuration = 24;
     const file = req.file;
 
     // Validate story type
@@ -87,17 +90,17 @@ exports.createStory = async (req, res) => {
     }
 
     // Create story
-    const story = await Story.create({
-      userId: req.user._id,
-      type,
-      mediaUrl,
-      cloudinaryId,
-      textContent,
-      caption,
-      backgroundColor: backgroundColor || '#FFFFFF',
-      duration: duration || 24,
-      visibility: visibility || 'public'
-    });
+   const story = await Story.create({
+  userId: req.user._id,
+  type,
+  mediaUrl,
+  cloudinaryId,
+  textContent,
+  caption,
+  backgroundColor: backgroundColor || '#FFFFFF',
+  duration: storyDuration,
+  visibility: visibility || 'public'
+});
 
     // Increment user's stories count
     await req.user.incrementStoriesCount();
