@@ -2,54 +2,16 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 /**
- * Middleware to protect routes - requires valid JWT token
+ * Middleware to allow any user, with or without a JWT token
  */
 const protect = async (req, res, next) => {
-  let token;
+  // Optionally, set a default user (so req.user is never undefined)
+  req.user = { _id: '000000000000000000000001', username: 'publicuser' };
+  // Optionally, just log if a token header was present
+  // console.log('Authorization:', req.headers.authorization);
 
-  try {
-    // Check for token in Authorization header
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-
-    // Make sure token exists
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: 'Not authorized to access this route. Please provide a valid token.'
-      });
-    }
-
-    try {
-      // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      // Get user from token
-      req.user = await User.findById(decoded.id).select('-__v');
-
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          error: 'User not found. Token may be invalid.'
-        });
-      }
-
-      next();
-    } catch (error) {
-      return res.status(401).json({
-        success: false,
-        error: 'Token is not valid or has expired'
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server error during authentication'
-    });
-  }
+  return next(); // Allow all requests through!
 };
-
 /**
  * Generate JWT token
  */
