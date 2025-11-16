@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+require('dotenv').config();
+console.log("CLOUDINARY ENV:", process.env.CLOUDINARY_CLOUD_NAME, process.env.CLOUDINARY_API_KEY, process.env.CLOUDINARY_API_SECRET);
 const connectDB = require('./config/database');
 const cron = require('node-cron');
 const Story = require('./models/Story');
