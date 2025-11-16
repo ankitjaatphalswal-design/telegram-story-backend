@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Stories</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading" class="loading-screen">
+            <div class="spinner"></div>
+            <p>Loading Stories...</p>
+        </div>
+
+        <!-- Main Container -->
+        <div id="main-content" class="hidden">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <h1 class="header-title">Stories</h1>
+                    <button id="createStoryBtn" class="btn-primary">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Create Story
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stories List -->
+            <div class="stories-container">
+                <div id="stories-grid" class="stories-grid">
+                    <!-- Stories will be dynamically loaded here -->
+                </div>
+            </div>
+
+            <!-- Create Story Modal -->
+            <div id="createModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Create Story</h2>
+                        <button id="closeModal" class="btn-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="story-type-selector">
+                            <button class="type-btn active" data-type="image">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                                    <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Image
+                            </button>
+                            <button class="type-btn" data-type="video">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M10 8L16 12L10 16V8Z" fill="currentColor"/>
+                                </svg>
+                                Video
+                            </button>
+                            <button class="type-btn" data-type="text">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M4 7H20M10 3V7M14 3V7M6 11H18M6 15H18M6 19H14" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Text
+                            </button>
+                        </div>
+
+                        <div id="mediaUpload" class="upload-section">
+                            <input type="file" id="fileInput" accept="image/*,video/*" class="file-input">
+                            <label for="fileInput" class="upload-label">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 4V16M12 4L8 8M12 4L16 8M4 17V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Choose File</span>
+                            </label>
+                            <div id="preview" class="preview hidden"></div>
+                        </div>
+
+                        <div id="textInput" class="text-section hidden">
+                            <textarea id="storyText" placeholder="Write your story..." rows="5"></textarea>
+                            <input type="color" id="bgColor" value="#0088CC">
+                        </div>
+
+                        <input type="text" id="caption" placeholder="Add caption (optional)" class="input-field">
+
+                        <div class="visibility-selector">
+                            <label>Visibility:</label>
+                            <select id="visibility" class="select-field">
+                                <option value="public">Public</option>
+                                <option value="friends">Friends</option>
+                                <option value="private">Private</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="publishBtn" class="btn-primary btn-large">Publish Story</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story View Modal -->
+            <div id="viewModal" class="modal hidden">
+                <div class="story-viewer">
+                    <div class="story-header">
+                        <div class="story-user-info">
+                            <div class="user-avatar"></div>
+                            <div>
+                                <div class="user-name"></div>
+                                <div class="story-time"></div>
+                            </div>
+                        </div>
+                        <button id="closeViewModal" class="btn-close">&times;</button>
+                    </div>
+                    <div class="story-content">
+                        <div id="storyMedia"></div>
+                    </div>
+                    <div class="story-actions">
+                        <button id="likeBtn" class="action-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z" fill="currentColor"/>
+                            </svg>
+                            <span id="likeCount">0</span>
+                        </button>
+                        <button id="viewsBtn" class="action-btn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 5C7 5 2.73 8.11 1 12.5C2.73 16.89 7 20 12 20C17 20 21.27 16.89 23 12.5C21.27 8.11 17 5 12 5Z" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span id="viewCount">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
